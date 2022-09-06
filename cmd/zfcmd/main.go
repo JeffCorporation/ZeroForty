@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"math/rand"
 	"time"
 )
 
@@ -29,7 +30,7 @@ func updateFrameText() {
 			frame.Clear().
 				AddText(fmt.Sprintf("> %s | %s", curTask, fmtDuration(t, false)), true, tview.AlignLeft, tcell.ColorWhite).
 				AddText(fmt.Sprintf("Auj. %s | Sem. %s", fmtDuration(d, true), fmtDuration(w, true)), true, tview.AlignRight, tcell.ColorWhite). //header right
-				AddText("(N) Nouveau (P) Projets", false, tview.AlignLeft, tcell.ColorBlue)
+				AddText("(N) Nouveau | (T) Todo | (P) Projets | (entrer) démarrer | (espace) modifier", false, tview.AlignLeft, tcell.ColorBlue)
 		})
 		time.Sleep(time.Second)
 	}
@@ -61,7 +62,7 @@ func fmtDuration(d time.Duration, round15 bool) string {
 func RefreshTable() *tview.Table {
 
 	table := tview.NewTable().
-		SetSelectable(true, true)
+		SetSelectable(true, false)
 
 	rows := 20
 
@@ -69,26 +70,43 @@ func RefreshTable() *tview.Table {
 		SetBackgroundColor(tcell.ColorGrey))
 	table.SetCell(0, 1, tview.NewTableCell("").
 		SetBackgroundColor(tcell.ColorGrey))
-	table.SetCell(0, 2, tview.NewTableCell("08:13 [08:15]").
+	table.SetCell(0, 2, tview.NewTableCell("").
+		SetBackgroundColor(tcell.ColorGrey))
+	table.SetCell(0, 3, tview.NewTableCell("08:13 [08:15]").
 		SetBackgroundColor(tcell.ColorGrey))
 
 	for r := 1; r < rows; r++ {
-		table.SetCell(r, 0,
-			tview.NewTableCell("2").
-				SetTextColor(tcell.ColorWhite).
-				SetBackgroundColor(tcell.ColorDarkBlue))
 
-		table.SetCell(r, 1,
+		table.SetCell(r, 0,
 			tview.NewTableCell("Bacon ipsum dolor amet ground").
 				SetTextColor(tcell.ColorWhite).
 				SetBackgroundColor(tcell.ColorDarkBlue).
-				SetExpansion(10))
+				SetExpansion(2))
 
-		table.SetCell(r, 2,
-			tview.NewTableCell("01:50").
+		table.SetCell(r, 1,
+			tview.NewTableCell("Support Admin").
 				SetTextColor(tcell.ColorWhite).
 				SetBackgroundColor(tcell.ColorDarkBlue).
-				SetExpansion(5))
+				SetExpansion(2))
+
+		if RandBool() {
+			table.SetCell(r, 2,
+				tview.NewTableCell("07h23 - 16h32 [2]").
+					SetTextColor(tcell.ColorWhite).
+					SetBackgroundColor(tcell.ColorDarkBlue).
+					SetExpansion(1))
+		} else {
+			table.SetCell(r, 2,
+				tview.NewTableCell("13h05 - 14h50").
+					SetTextColor(tcell.ColorWhite).
+					SetBackgroundColor(tcell.ColorDarkBlue).
+					SetExpansion(1))
+		}
+
+		table.SetCell(r, 3,
+			tview.NewTableCell("01:50").
+				SetTextColor(tcell.ColorWhite).
+				SetBackgroundColor(tcell.ColorDarkBlue))
 	}
 
 	return table
@@ -111,4 +129,9 @@ func main() {
 	if err := app.SetRoot(frame, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
+}
+
+func RandBool() bool {
+	//rand.Seed(time.Now().UnixNano())
+	return rand.Intn(2) == 1
 }
